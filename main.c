@@ -2,7 +2,59 @@
 #include <stdio.h>
 #include <string.h>
 
-int **board, dimension = 0, test_cases = 0;
+
+typedef struct unit {
+  int **board, move_count;
+  struct unit *next;
+} Unit;
+
+typedef struct queue {
+  Unit *first;
+  int element_count;
+} Queue;
+
+Queue *search_space = NULL;
+int **init_board, dimension = 0, test_cases = 0;
+
+Unit *create_unit(int **board, int move_count) {
+  Unit *ret = malloc(sizeof(Unit));
+  ret->board = board;
+  ret->move_count = move_count;
+  ret->next = NULL;
+  return ret;
+}
+
+void *init_queue() {
+  search_space = malloc(sizeof(Queue));
+  search_space->first = NULL;
+  search_space->element_count = 0;
+}
+
+void queue_push(Unit *elem) {
+  Unit* temp = NULL;
+  temp = search_space->first;
+  search_space->first = elem;
+  elem->next = temp;
+  search_space->element_count++;
+}
+
+Unit *queue_pop() {
+  Unit *ret = NULL, *temp = NULL;
+  if(search_space->element_count == 1) {
+    ret = search_space->first;
+    search_space->first = NULL;
+    search_space->element_count--;
+  }
+  else if(search_space->element_count > 1) {
+    temp = search_space->first;
+    while(temp->next->next)
+      temp = temp->next;
+    ret = temp->next;
+    temp->next = NULL;
+    search_space->element_count--;
+  }
+  return ret;
+}
 
 int solve_board(void) {
   return 0;
@@ -16,20 +68,20 @@ int read_board(FILE *f) {
   tok = strtok(buf," \n");
   dimension = atoi(tok);
 
-  board = malloc(sizeof(int *) * dimension);
+  init_board = malloc(sizeof(int *) * dimension);
   for(i=0;i<dimension;i++)
-    board[i] = malloc(sizeof(int) * dimension);
+    init_board[i] = malloc(sizeof(int) * dimension);
   
   for(i=0;i<dimension;i++) {
     for(j=0;j<dimension;j++) {
       if(!j) {
         fgets(buf,10,f);
 	tok = strtok(buf," \n");
-	board[i][j] = atoi(tok);
+	init_board[i][j] = atoi(tok);
       }
       else {
 	tok = strtok(NULL," \n");
-	board[i][j] = atoi(tok);
+	init_board[i][j] = atoi(tok);
       }
     }
   }
