@@ -5,7 +5,7 @@
 
 typedef struct unit {
   int **board, move_count;
-  struct unit *next;
+  struct unit *queue_next, *next;
 } Unit;
 
 typedef struct queue {
@@ -20,7 +20,7 @@ Unit *create_unit(int **board, int move_count) {
   Unit *ret = malloc(sizeof(Unit));
   ret->board = board;
   ret->move_count = move_count;
-  ret->next = NULL;
+  ret->queue_next = NULL;
   return ret;
 }
 
@@ -34,7 +34,7 @@ void queue_push(Unit *elem) {
   Unit* temp = NULL;
   temp = search_space->first;
   search_space->first = elem;
-  elem->next = temp;
+  elem->queue_next = temp;
   search_space->element_count++;
 }
 
@@ -47,10 +47,10 @@ Unit *queue_pop() {
   }
   else if(search_space->element_count > 1) {
     temp = search_space->first;
-    while(temp->next->next)
-      temp = temp->next;
-    ret = temp->next;
-    temp->next = NULL;
+    while(temp->queue_next->queue_next)
+      temp = temp->queue_next;
+    ret = temp->queue_next;
+    temp->queue_next = NULL;
     search_space->element_count--;
   }
   return ret;
