@@ -16,6 +16,16 @@ typedef struct queue {
 Queue *search_space = NULL;
 int **init_board, dimension = 0, test_cases = 0;
 
+void print_win(Unit *solution) {
+  int i;
+  if(solution == NULL)
+    return;
+  for(i=0;i<dimension;i++) 
+    printf("%d %d %d\n", solution->board[i][0], solution->board[i][1], solution->board[i][2]);
+  printf("\n");
+  return print_win(solution->prev);
+}
+
 Unit *create_unit(int **board, int move_count, Unit *prev) {
   Unit *ret = malloc(sizeof(Unit));
   ret->board = board;
@@ -129,6 +139,7 @@ int bfs(void) {
     temp = queue_pop();
     if(is_win(temp->board)) {
       printf("moves to win: %d\n",temp->move_count);
+      print_win(temp);
       return 1;
     }
     else
@@ -139,7 +150,6 @@ int bfs(void) {
 
 int solve_board(void) {
   if(bfs()) {
-    printf("Found solution\n");
     return 0;
   }
   return 1;
