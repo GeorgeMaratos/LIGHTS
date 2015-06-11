@@ -108,7 +108,6 @@ int **transform_board(int **board, int i, int j) {
   int **new_board = malloc(sizeof(int *) * dimension);
   for(k=0;k<dimension;k++) 
     new_board[k] = malloc(sizeof(int) * dimension);
-
   copy_board(board,new_board);
   swap(new_board,i,j,2);
   return new_board;
@@ -118,10 +117,8 @@ void generate_sucessors(Unit *elem) {
   int i, j;
   int **temp_board = NULL;
   Unit *temp_unit = NULL;
-
   if(elem->move_count == 1000)
     return;
-
   for(i=0;i<dimension;i++) {
     for(j=0;j<dimension;j++) {
       temp_board = transform_board(elem->board, i, j);
@@ -187,19 +184,16 @@ int main(int argc, char **argv) {
   int i, j;
   char buf[10], *tok;
   FILE *f;
-
   if(argc != 2) 
     return 1;
   f = fopen(argv[1],"r");
-
   fgets(buf,10,f);
   tok = strtok(buf," \n");
   test_cases = atoi(tok);
-
   for(i=0;i<test_cases;i++) {
+    printf("%d: ",i + 1);
     if(read_board(f)) return 1;
     if(solve_board()) return 1;
   }
-
   return 0;
 }
