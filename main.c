@@ -5,22 +5,23 @@
 
 typedef struct unit {
   int **board, move_count;
-  struct unit *queue_next, *next;
+  struct unit *queue_next, *prev;
 } Unit;
 
 typedef struct queue {
   Unit *first;
   int element_count;
 } Queue;
-
+//hook
 Queue *search_space = NULL;
 int **init_board, dimension = 0, test_cases = 0;
 
-Unit *create_unit(int **board, int move_count) {
+Unit *create_unit(int **board, int move_count, Unit *prev) {
   Unit *ret = malloc(sizeof(Unit));
   ret->board = board;
   ret->move_count = move_count;
   ret->queue_next = NULL;
+  ret->prev = prev;
   return ret;
 }
 
@@ -38,7 +39,7 @@ void queue_push(Unit *elem) {
   search_space->element_count++;
 }
 
-Unit *queue_pop() {
+Unit *queue_pop(void) {
   Unit *ret = NULL, *temp = NULL;
   if(search_space->element_count == 1) {
     ret = search_space->first;
@@ -54,6 +55,80 @@ Unit *queue_pop() {
     search_space->element_count--;
   }
   return ret;
+}
+
+int is_win(int **board) {
+  int i, j;
+  for(i=0;i<dimension;i++) {
+    for(j=0;j<dimension;j++)
+      if(board[i][j]) return 0;
+  }
+  return 1;
+}
+
+void copy_board(int **board, int **new_board) {
+  int i, j;
+  for(i=0;i<dimension;i++) {
+    for(j=0;j<dimension;j++) 
+      new_board[i][j] = board[i][j];
+  }
+}
+  
+void swap(int **board, int i, int j, int count) {
+  if(i < 0 || i == dimension || j < 0 || j == dimension || !count)
+    return;
+  if(board[i][j]) {
+    board[i][j] = 0;
+    swap(board, i - 1, j, count - 1);
+    swap(board, i, j - 1, count - 1);
+    swap(board, i + 1, j, count - 1);
+    swap(board, i, j + 1, count - 1);
+  }
+  else {
+    board[i][j] = 1;
+    swap(board, i - 1, j, count - 1);
+    swap(board, i, j - 1, count - 1);
+    swap(board, i + 1, j, count - 1);
+    swap(board, i, j + 1, count - 1);
+  }
+}
+ 
+int **transform_board(int **board, int i, int j) {
+  int **new_board = malloc(sizeof(int *) * dimension);
+  copy_board(board,new_board);
+  swap(new_board,i,j,2);
+  return new_board;
+}
+
+void generate_sucessors(Unit *elem) {
+  int i, j;
+  int **temp_board = NULL;
+  Unit *temp_unit = NULL;
+
+  if(elem->move_count == 1000)
+    return;
+
+  for(i=0;i<dimension;i++) {
+    for(j=0;j<dimension;j++) {
+      temp_board = transform_board(elem->board, i, j);
+      temp_unit = create_unit(temp_board, elem->move_count + 1, elem);
+      queue_push(temp_unit);
+    }
+  }
+}
+
+int bfs(void) {
+  Unit *temp = NULL;
+  init_queue();
+  queue_push(create_unit(init_board,0,NULL));
+  while(search_space->element_count) {
+    temp = queue_pop();
+    if(is_win(temp->board))
+      return 1;
+    else
+      generate_sucessors(temp);
+  }
+  return 0;
 }
 
 int solve_board(void) {
