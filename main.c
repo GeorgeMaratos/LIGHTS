@@ -12,7 +12,7 @@ typedef struct queue {
   Unit *first;
   int element_count;
 } Queue;
-//hook
+
 Queue *search_space = NULL;
 int **init_board, dimension = 0, test_cases = 0;
 
@@ -94,7 +94,11 @@ void swap(int **board, int i, int j, int count) {
 }
  
 int **transform_board(int **board, int i, int j) {
+  int k;
   int **new_board = malloc(sizeof(int *) * dimension);
+  for(k=0;k<dimension;k++) 
+    new_board[k] = malloc(sizeof(int) * dimension);
+
   copy_board(board,new_board);
   swap(new_board,i,j,2);
   return new_board;
@@ -123,8 +127,10 @@ int bfs(void) {
   queue_push(create_unit(init_board,0,NULL));
   while(search_space->element_count) {
     temp = queue_pop();
-    if(is_win(temp->board))
+    if(is_win(temp->board)) {
+      printf("moves to win: %d\n",temp->move_count);
       return 1;
+    }
     else
       generate_sucessors(temp);
   }
@@ -132,7 +138,11 @@ int bfs(void) {
 }
 
 int solve_board(void) {
-  return 0;
+  if(bfs()) {
+    printf("Found solution\n");
+    return 0;
+  }
+  return 1;
 }
 
 int read_board(FILE *f) {
