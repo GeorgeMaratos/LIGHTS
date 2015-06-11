@@ -16,3 +16,9 @@ Output
 
 For each test case, in the first line, print k, the number of times Johny must press a light. Any valid solution in which k does not exceed 5000 is accepted.
 Then k lines follow, each line containing two numbers i and j (1 ≤ i, j ≤ n), describing the position of a light to be pressed. Note that (i,j) means the light in the ith row and jth column; the rows are numbered 1 to n from top to bottom, and the columns are numbered 1 to n from left to right.
+
+
+Notes:
+
+Due to the nature of breadth first search, larger boards will take significantly longer
+So far the solver will tell you how many moves to the solution, but not the moves
